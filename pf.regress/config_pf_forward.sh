@@ -42,18 +42,14 @@
 # directories. It also attempts to scp the configuration
 # to test hosts .
 #
-#  ./config_pf_forward.sh $SRC/regress/sys/net/pf_forward/Makefile
-#
 # command above configures PF testbed using parameters found
 # in Makefile. If Makefile is not provided the script uses
-# defaults found in resources/pf_forward.sh file
+# built in defaults.
 #
 
 #
 # read defaults in case Makefile is not specified.
 #
-. ./resources/pf_forward.sh
-
 typeset SRC_OUT=''
 typeset PF_IN=''
 typeset PF_OUT=''
