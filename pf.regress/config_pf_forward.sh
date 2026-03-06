@@ -82,7 +82,7 @@ typeset RPT_OUT6=''
 function set_pf_forward_vars {
 	typeset MAKEFILE=${1}
 
-	if [[ -z "{$MAKEFILE}" ]] ; then
+	if [[ -z "${MAKEFILE}" ]] ; then
 		SRC_OUT=10.188.210.10
 		PF_IN=10.188.210.50
 		PF_OUT=10.188.211.50
