@@ -151,7 +151,7 @@ function create_src {
 	set_pf_forward_vars ${MAKEFILE}
 	
 	VIO1_INET=${SRC_OUT}
-	VIO1_INET=${SRC_OUT6}
+	VIO1_INET6=${SRC_OUT6}
 
 	#
 	# turn IP addresses to route prefixes
@@ -203,6 +203,9 @@ function create_src {
 
 	RTT_OUT6=`echo ${RTT_OUT6} |cut -d ';' -f 1 -f 2 -f 3 -f 4`
 	RTT_OUT6="${RTT_OUT6}/64"
+
+	NEXT_HOP=${PF_IN}
+	NEXT_HOP6=${PF_IN6}
 
 cat <<EOF > src/etc/hostname.vio1
 inet ${VIO1_INET}/24
@@ -298,6 +301,9 @@ function create_pf
 
 	RPT_OUT6=`echo ${RPT_OUT6} |cut -d ';' -f 1 -f 2 -f 3 -f 4`
 	RPT_OUT6="${RPT_OUT6}/64"
+
+	NEXT_HOP=${RT_IN}
+	NEXT_HOP6=${RT_IN6}
 
 cat <<EOF > pf/etc/hostname.vio1
 inet ${VIO1_INET}/24
@@ -404,21 +410,27 @@ function create_rt
 	RTT_OUT6=`echo ${RTT_OUT6} |cut -d ';' -f 1 -f 2 -f 3 -f 4`
 	RTT_OUT6="${RTT_OUT6}/64"
 
+	NEXT_HOP_SRC_OUT=${PF_OUT}
+	NEXT_HOP_SRC_OUT6=${PF_OUT6}
+
+	NEXT_HOP_ECO_OUT=${ECO_IN}
+	NEXT_HOP_ECO_OUT6=${ECO_IN6}
+
 cat <<EOF > rt/etc/hostname.vio1
 inet ${VIO1_INET}/24
 mtu 1300
-	!route add ${SRC_OUT} ${NEXT_HOP_SRC}
-	!route add ${RPT_IN} ${NEXT_HOP_SRC}
-	!route add ${RPT_OUT} ${NEXT_HOP_SRC}
+	!route add ${SRC_OUT} ${NEXT_HOP_SRC_OUT}
+	!route add ${RPT_IN} ${NEXT_HOP_SRC_OUT}
+	!route add ${RPT_OUT} ${NEXT_HOP_SRC_OUT}
 
 inet6 ${VIO1_INET6}/64
 mtu 1300
 	!route add -inet6 ${SRC_OUT6} \\
-	    ${NEXT_HOP_SRC6}
+	    ${NEXT_HOP_SRC_OUT6}
 	!route add -inet6 ${RPT_IN6} \\
-	    ${NEXT_HOP_SRC6}
+	    ${NEXT_HOP_SRC_OUT6}
 	!route add -inet6 ${RPT_OUT6} \\
-	    ${NEXT_HOP_SRC6}
+	    ${NEXT_HOP_SRC_OUT6}
 EOF
 
 cat <<EOF > rt/etc/hostname.vio2
@@ -485,6 +497,9 @@ function create_eco
 
 	RPT_OUT6=`echo ${RPT_OUT6} |cut -d ';' -f 1 -f 2 -f 3 -f 4`
 	RPT_OUT6="${RPT_OUT6}/64"
+
+	NEXT_HOP=${RT_OUT}
+	NEXT_HOP6=${RT_OUT6}
 
 cat <<EOF > eco/etc/hostname.vio1
 inet ${VIO1_INET}/24
