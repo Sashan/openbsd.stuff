@@ -54,82 +54,112 @@
 #
 . ./resources/pf_forward.sh
 
+typeset SRC_OUT=''
+typeset PF_IN=''
+typeset PF_OUT=''
+typeset RT_IN=''
+typeset RT_OUT=''
+typeset ECO_IN=''
+typeset ECO_OUT=''
+typeset RDR_IN=''
+typeset RDR_OUT=''
+typeset AF_IN=''
+typeset RTT_IN=''
+typeset RTT_OUT=''
+typeset RPT_IN=''
+typeset RPT_OUT=''
+typeset SRC_OUT6=''
+typeset PF_IN6=''
+typeset PF_OUT6=''
+typeset RT_IN6=''
+typeset RT_OUT6=''
+typeset ECO_IN6=''
+typeset ECO_OUT6=''
+typeset RDR_IN6=''
+typeset RDR_OUT6=''
+typeset AF_IN6=''
+typeset RTT_IN6=''
+typeset RTT_OUT6=''
+typeset RPT_IN6=''
+typeset RPT_OUT6=''
+
+function set_pf_forward_vars {
+	typeset MAKEFILE=${1}
+
+	if [[ -z "{$MAKEFILE}" ]] ; then
+		SRC_OUT=10.188.210.10
+		PF_IN=10.188.210.50
+		PF_OUT=10.188.211.50
+		RT_IN=10.188.211.51
+		RT_OUT=10.188.212.51
+		ECO_IN=10.188.212.52
+		ECO_OUT=10.188.213.52
+		RDR_IN=10.188.214.188
+		RDR_OUT=10.188.215.188
+		AF_IN=10.188.216.82		# /24 must be dec(ECO_IN6/120)
+		RTT_IN=10.188.217.52
+		RTT_OUT=10.188.218.52
+		RPT_IN=10.188.220.10
+		RPT_OUT=10.188.221.10
+		SRC_OUT6=fdd7:e83e:66bc:210:fce1:baff:fed1:561f
+		PF_IN6=fdd7:e83e:66bc:210:5054:ff:fe12:3450
+		PF_OUT6=fdd7:e83e:66bc:211:5054:ff:fe12:3450
+		RT_IN6=fdd7:e83e:66bc:211:5054:ff:fe12:3451
+		RT_OUT6=fdd7:e83e:66bc:212:5054:ff:fe12:3451
+		ECO_IN6=fdd7:e83e:66bc:212:5054:ff:fe12:3452
+		ECO_OUT6=fdd7:e83e:66bc:213:5054:ff:fe12:3452
+		RDR_IN6=fdd7:e83e:66bc:214::188
+		RDR_OUT6=fdd7:e83e:66bc:215::188
+		AF_IN6=fdd7:e83e:66bc:216::34	# /120 must be hex(ECO_IN/24)
+		RTT_IN6=fdd7:e83e:66bc:217:5054:ff:fe12:3452
+		RTT_OUT6=fdd7:e83e:66bc:218:5054:ff:fe12:3452
+		RPT_IN6=fdd7:e83e:66bc:1220:fce1:baff:fed1:561f
+		RPT_OUT6=fdd7:e83e:66bc:1221:fce1:baff:fed1:561f
+	else
+		SRC_OUT=`awk '/^SRC_OUT .*/ {print($3);}' ${MAKEFILE}`
+		PF_IN=`awk '/^PF_IN .*/ {print($3);}' ${MAKEFILE}`
+		PF_OUT=`awk '/^PF_OUT .*/ {print($3);}' ${MAKEFILE}`
+		RT_IN=`awk '/^RT_IN .*/ {print($3);}' ${MAKEFILE}`
+		RT_OUT=`awk '/^RT_OUT .*/ {print($3);}' ${MAKEFILE}`
+		ECO_IN=`awk '/^ECO_IN .*/ {print($3);}' ${MAKEFILE}`
+		ECO_OUT=`awk '/^ECO_OUT .*/ {print($3);}' ${MAKEFILE}`
+		RDR_IN=`awk '/^RDR_IN .*/ {print($3);}' ${MAKEFILE}`
+		RDR_OUT=`awk '/^RDR_OUT .*/ {print($3);}' ${MAKEFILE}`
+		AF_IN=`awk '/^AF_IN .*/ {print($3);}' ${MAKEFILE}`
+		RTT_IN=`awk '/^RTT_IN .*/ {print($3);}' ${MAKEFILE}`
+		RTT_OUT=`awk '/^RTT_OUT .*/ {print($3);}' ${MAKEFILE}`
+		RPT_IN=`awk '/^RPT_IN .*/ {print($3);}' ${MAKEFILE}`
+		RPT_OUT=`awk '/^RPT_OUT .*/ {print($3);}' ${MAKEFILE}`
+		SRC_OUT6=`awk '/^SRC_OUT6 .*/ {print($3);}' ${MAKEFILE}`
+		PF_IN6=`awk '/^PF_IN6 .*/ {print($3);}' ${MAKEFILE}`
+		PF_OUT6=`awk '/^PF_OUT6 .*/ {print($3);}' ${MAKEFILE}`
+		RT_IN6=`awk '/^RT_IN6 .*/ {print($3);}' ${MAKEFILE}`
+		RT_OUT6=`awk '/^RT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
+		ECO_IN6=`awk '/^ECO_IN6 .*/ {print($3);}' ${MAKEFILE}`
+		ECO_OUT6=`awk '/^ECO_OUT6 .*/ {print($3);}' ${MAKEFILE}`
+		RDR_IN6=`awk '/^RDR_IN6 .*/ {print($3);}' ${MAKEFILE}`
+		RDR_OUT6=`awk '/^RDR_OUT6 .*/ {print($3);}' ${MAKEFILE}`
+		AF_IN6=`awk '/^AF_IN6 .*/ {print($3);}' ${MAKEFILE}`
+		RTT_IN6=`awk '/^RTT_IN6 .*/ {print($3);}' ${MAKEFILE}`
+		RTT_OUT6=`awk '/^RTT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
+		RPT_IN6=`awk '/^RPT_IN6 .*/ {print($3);}' ${MAKEFILE}`
+		RPT_OUT6=`awk '/^RPT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
+	fi
+}
+
 function create_src {
 	typeset MAKEFILE=${1}
 	typeset VIO1_INET=''
 	typeset VIO1_INET6=''
-	typeset RT_IN=''
-	typeset RT_IN6=''
-	typeset ECO_IN=''
-	typeset ECO_IN6=''
-	typeset ECO_OUT=''
-	typeset ECO_OUT6=''
-	typeset RPT_IN=''
-	typeset RPT_IN6=''
-	typeset RPT_OUT=''
-	typeset RPT_OUT6=''
-	typeset RDR_IN=''
-	typeset AF_IN=''
-	typeset AF_IN6=''
-	typeset RTT_IN=''
-	typeset RTT_IN6=''
-	typeset RTT_OUT=''
-	typeset RTT_OUT6=''
-	typeset NEXT_HOP=''
-	typeset NEXT_HOP6=''
 
-	if [[ -z "{$MAKEFILE}" ]] ; then
-		VIO1_INET=${SRC_OUT_DEFAULT}
-		VIO1_INET6=${SRC_OUT6_DEFAULT}
-		RT_IN=${RT_IN_DEFAULT}
-		RT_IN6=${RT_IN6_DEFAULT}
-		ECO_IN=${ECO_IN_DEFAULT}
-		ECO_IN6=${ECO_IN6_DEFAULT}
-		ECO_OUT=${ECO_OUT_DEFAULT}
-		ECO_OUT6=${ECO_OUT6_DEFAULT}
-		RDR_IN=${RDR_IN_DEFAULT}
-		RDR_IN6=${RDR_IN6_DEFAULT}
-		RDR_OUT=${RDR_OUT_DEFAULT}
-		RDR_OUT6=${RDR_OUT6_DEFAULT}
-		RPT_IN=${RPT_IN_DEFAULT}
-		RPT_IN6=${RPT_IN6_DEFAULT}
-		RPT_OUT=${RPT_OUT_DEFAULT}
-		RPT_OUT6=${RPT_OUT6_DEFAULT}
-		AF_IN=${AF_IN_DEFAULT}
-		AF_IN6=${AF_IN6_DEFAULT}
-		RTT_IN=${RTT_IN_DEFAULT}
-		RTT_IN6=${RTT_IN6_DEFAULT}
-		RTT_OUT=${RTT_OUT_DEFAULT}
-		RTT_OUT6=${RTT_OUT6_DEFAULT}
-		NEXT_HOP-${PF_IN_DEFAULT}
-		NEXT_HOP6-${PF_IN6_DEFAULT}
-	else
-		VIO1_INET=`awk '/^SRC_OUT .*/ {print($3);}' ${MAKEFILE}`
-		VIO1_INET6=`awk '/^SRC_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RT_IN=`awk '/^RT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RT_IN6=`awk '/^RT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		ECO_IN=`awk '/^ECO_IN .*/ {print($3);}' ${MAKEFILE}`
-		ECO_IN6=`awk '/^ECO_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		ECO_OUT=`awk '/^ECO_OUT .*/ {print($3);}' ${MAKEFILE}`
-		ECO_OUT6=`awk '/^ECO_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RDR_IN=`awk '/^RDR_IN .*/ {print($3);}' ${MAKEFILE}`
-		RDR_IN6=`awk '/^RDR_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RDR_OUT=`awk '/^RDR_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RDR_OUT6=`awk '/^RDR_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RPT_IN=`awk '/^RPT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RPT_IN6=`awk '/^RPT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RPT_OUT=`awk '/^RPT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RPT_OUT6=`awk '/^RPT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		AF_IN=`awk '/^AF_IN .*/ {print($3);}' ${MAKEFILE}`
-		AF_IN6=`awk '/^AF_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RTT_IN=`awk '/^RTT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RTT_IN6=`awk '/^RTT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RTT_OUT=`awk '/^RTT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RTT_OUT6=`awk '/^RTT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP=`awk '/^PF_IN .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP6=`awk '/^PF_IN6 .*/ {print($3);}' ${MAKEFILE}`
-	fi
+	set_pf_forward_vars ${MAKEFILE}
+	
+	VIO1_INET=${SRC_OUT}
+	VIO1_INET=${SRC_OUT6}
 
+	#
+	# turn IP addresses to route prefixes
+	#
 	RT_IN=`echo ${RT_IN} |cut -d '.' -f 1 -f 2 -f 3`
 	RT_IN="${RT_IN}/24"
 
@@ -226,67 +256,17 @@ function create_pf
 	typeset VIO1_INET6=''
 	typeset VIO2_INET=''
 	typeset VIO2_INET6=''
-	typeset ECO_IN=''
-	typeset ECO_IN6=''
-	typeset ECO_OUT=''
-	typeset ECO_OUT6=''
-	typeset RTT_IN=''
-	typeset RTT_IN6=''
-	typeset RTT_OUT=''
-	typeset RTT_OUT6=''
-	typeset RPT_IN=''
-	typeset RPT_IN6=''
-	typeset RPT_OUT=''
-	typeset RPT_OUT6=''
-	typeset NEXT_HOP=''
-	typeset NEXT_HOP6=''
 
-	if [[ -z "{$MAKEFILE}" ]] ; then
-		VIO1_INET=${PF_IN_DEFAULT}
-		VIO1_INET6=${PF_IN6_DEFAULT}
-		VIO2_INET=${PF_OUT_DEFAULT}
-		VIO2_INET6=${PF_OUT6_DEFAULT}
-		ECO_IN=${ECO_IN_DEFAULT}
-		ECO_IN6=${ECO_IN6_DEFAULT}
-		ECO_OUT=${ECO_OUT_DEFAULT}
-		ECO_OUT6${ECO_OUT6_DEFAULT}
-		RTT_IN=${RTT_IN_DEFAULT}
-		RTT_IN6=${RTT_IN6_DEFAULT}
-		RTT_OUT=${RTT_OUT_DEFAULT}
-		RTT_OUT6=${RTT_OUT6_DEFAULT}
-		RPT_IN=${RPT_IN_DEFAULT}
-		RPT_IN6=${RPT_IN6_DEFAULT}
-		RPT_OUT=${RPT_OUT_DEFAULT}
-		RPT_OUT6=${RPT_OUT6_DEFAULT}
-		NEXT_HOP=${RT_IN_DEFAULT}
-		NEXT_HOP6=${RT_IN6_DEFAULT}
-	else
-		VIO1_INET=`awk '/^PF_IN .*/ {print($3);}' ${MAKEFILE}`
-		VIO1_INET6=`awk '/^PF_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		VIO2_INET=`awk '/^PF_OUT .*/ {print($3);}' ${MAKEFILE}`
-		VIO2_INET6=`awk '/^PF_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		ECO_IN=`awk '/^ECO_IN .*/ {print($3);}' ${MAKEFILE}`
-		ECO_IN6=`awk '/^ECO_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		ECO_OUT=`awk '/^ECO_OUT .*/ {print($3);}' ${MAKEFILE}`
-		ECO_OUT6=`awk '/^ECO_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RTT_IN=`awk '/^RTT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RTT_OUT=`awk '/^RTT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RTT_IN6=`awk '/^RTT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RTT_OUT6=`awk '/^RTT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RPT_IN=`awk '/^RPT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RPT_IN6=`awk '/^RPT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RPT_OUT=`awk '/^RPT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RPT_OUT6=`awk '/^RPT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP=`awk '/^RT_IN .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP6=`awk '/^RT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-	fi
+	set_pf_forward_vars ${MAKEFILE}
 
-	VIO1_INET=`awk '/^PF_IN .*/ {print($3);}' ${MAKEFILE}`
-	VIO1_INET6=`awk '/^PF_IN6 .*/ {print($3);}' ${MAKEFILE}`
+	VIO1_INET=${PF_IN}
+	VIO1_INET6=${PF_IN6}
+	VIO2_INET=${PF_OUT}
+	VIO2_INET6=${PF_OUT6}
 
-	VIO2_INET=`awk '/^PF_OUT .*/ {print($3);}' ${MAKEFILE}`
-	VIO2_INET6=`awk '/^PF_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-
+	#
+	# turn IP addresses to route prefixes
+	#
 	ECO_IN=`echo ${ECO_IN} |cut -d '.' -f 1 -f 2 -f 3`
 	ECO_IN="${ECO_IN}/24"
 
@@ -381,67 +361,17 @@ function create_rt
 	typeset VIO1_INET6=''
 	typeset VIO2_INET=''
 	typeset VIO2_INET6=''
-	typeset SRC_OUT=''
-	typeset SRC_OUT6=''
-	typeset RPT_IN=''
-	typeset RPT_OUT=''
-	typeset RPT_IN6=''
-	typeset RPT_OUT6=''
-	typeset ECO_OUT=''
-	typeset ECO_OUT6=''
-	typeset RTT_IN=''
-	typeset RTT_IN6=''
-	typeset RTT_OUT=''
-	typeset RTT_OUT6=''
-	typeset NEXT_HOP_SRC=''
-	typeset NEXT_HOP_SRC6=''
-	typeset NEXT_HOP_ECO_OUT=''
-	typeset NEXT_HOP_ECO_OUT6=''
 
-	if [[ -z "{$MAKEFILE}" ]] ; then
-		VIO1_INET=${RT_IN_DEFAULT}
-		VIO1_INET6=${RT_IN6_DEFAULT}
-		VIO2_INET=${RT_OUT_DEFAULT}
-		VIO2_INET6=${RT_OUT6_DEFAULT}
-		SRC_OUT=${SRC_OUT_DEFAULT}
-		SRC_OUT6=${SRC_OUT6_DEFAULT}
-		RPT_IN=${RPT_IN_DEFAULT}
-		RPT_IN6=${RPT_IN6_DEFAULT}
-		RPT_OUT=${RPT_OUT_DEFAULT}
-		RPT_OUT6=${RPT_OUT6_DEFAULT}
-		ECO_OUT=${ECO_OUT_DEFAULT}
-		ECO_OUT6${ECO_OUT6_DEFAULT}
-		RTT_IN=${RTT_IN_DEFAULT}
-		RTT_IN6=${RTT_IN6_DEFAULT}
-		RTT_OUT=${RTT_OUT_DEFAULT}
-		RTT_OUT6=${RTT_OUT6_DEFAULT}
-		NEXT_HOP_SRC=${PF_OUT_DEFAULT}
-		NEXT_HOP_SRC6=${PF_OUT6_DEFAULT}
-		NEXT_HOP_ECO_OUT=${ECO_IN_DEFAULT}
-		NEXT_HOP_ECO_OUT6=${ECO_IN6_DEFAULT}
-	else
-		VIO1_INET=`awk '/^RT_IN .*/ {print($3);}' ${MAKEFILE}`
-		VIO1_INET6=`awk '/^RT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		VIO2_INET=`awk '/^RT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		VIO2_INET6=`awk '/^RT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		SRC_OUT=`awk '/^SRC_OUT .*/ {print($3);}' ${MAKEFILE}`
-		SRC_OUT6=`awk '/^SRC_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RPT_IN=`awk '/^RPT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RPT_IN6=`awk '/^RPT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RPT_OUT=`awk '/^RPT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RPT_OUT6=`awk '/^RPT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		ECO_OUT=`awk '/^ECO_OUT .*/ {print($3);}' ${MAKEFILE}`
-		ECO_OUT6=`awk '/^ECO_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RTT_IN=`awk '/^RTT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RTT_OUT=`awk '/^RTT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RTT_IN6=`awk '/^RTT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RTT_OUT6=`awk '/^RTT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP_SRC=`awk '/^PF_OUT .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP_SRC6=`awk '/^PF_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP_ECO_OUT=`awk '/^ECO_IN .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP_ECO_OUT6=`awk '/^ECO_IN6 .*/ {print($3);}' ${MAKEFILE}`
-	fi
+	set_pf_forward_vars ${MAKEFILE}
 
+	VIO1_INET=${RT_IN}
+	VIO1_INET6=${RT_IN6}
+	VIO2_INET=${RT_OUT}
+	VIO2_INET6=${RT_OUT6}
+
+	#
+	# turn IP addresses to route prefixes
+	#
 	SRC_OUT=`echo ${SRC_OUT} |cut -d '.' -f 1 -f 2 -f 3`
 	SRC_OUT="${SRC_OUT}/24"
 
@@ -525,61 +455,17 @@ function create_eco
 	typeset VIO1_INET6=''
 	typeset VIO2_INET=''
 	typeset VIO2_INET6=''
-	typeset SRC_OUT=''
-	typeset SRC_OUT6=''
-	typeset PF_OUT=''
-	typeset PF_OUT6=''
-	typeset RTT_IN=''
-	typeset RTT_IN6=''
-	typeset RTT_OUT=''
-	typeset RTT_OUT6=''
-	typeset RPT_IN=''
-	typeset RPT_IN6=''
-	typeset RPT_OUT=''
-	typeset RPT_OUT6=''
-	typeset NEXT_HOP=''
-	typeset NEXT_HOP6=''
 
-	if [[ -z "{$MAKEFILE}" ]] ; then
-		VIO1_INET=${ECO_IN_DEFAULT}
-		VIO1_INET6=${ECO_IN6_DEFAULT}
-		VIO2_INET=${ECO_OUT_DEFAULT}
-		VIO2_INET6=${ECO_OUT6_DEFAULT}
-		SRC_OUT=${SRC_OUT_DEFAULT}
-		SRC_OUT6=${SRC_OUT6_DEFAULT}
-		PF_OUT=${PF_OUT_DEFAULT}
-		PF_OUT6=${PF_OUT6_DEFAULT}
-		RTT_IN=${RTT_IN_DEFAULT}
-		RTT_IN6=${RTT_IN6_DEFAULT}
-		RTT_OUT=${RTT_OUT_DEFAULT}
-		RTT_OUT6=${RTT_OUT6_DEFAULT}
-		RPT_IN=${RPT_IN_DEFAULT}
-		RPT_IN6=${RPT_IN6_DEFAULT}
-		RPT_OUT=${RPT_OUT_DEFAULT}
-		RPT_OUT6=${RPT_OUT6_DEFAULT}
-		NEXT_HOP=${RT_OUT_DEFAULT}
-		NEXT_HOP6=${RT_OUT6_DEFAULT}
-	else
-		VIO1_INET=`awk '/^ECO_IN .*/ {print($3);}' ${MAKEFILE}`
-		VIO1_INET6=`awk '/^ECO_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		VIO2_INET=`awk '/^ECO_OUT .*/ {print($3);}' ${MAKEFILE}`
-		VIO2_INET6=`awk '/^ECO_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		SRC_OUT=`awk '/^SRC_OUT .*/ {print($3);}' ${MAKEFILE}`
-		SRC_OUT6=`awk '/^SRC_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		PF_OUT=`awk '/^PF_OUT .*/ {print($3);}' ${MAKEFILE}`
-		PF_OUT6=`awk '/^PF_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RTT_IN=`awk '/^RTT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RTT_OUT=`awk '/^RTT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RTT_IN6=`awk '/^RTT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RTT_OUT6=`awk '/^RTT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		RPT_IN=`awk '/^RPT_IN .*/ {print($3);}' ${MAKEFILE}`
-		RPT_IN6=`awk '/^RPT_IN6 .*/ {print($3);}' ${MAKEFILE}`
-		RPT_OUT=`awk '/^RPT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		RPT_OUT6=`awk '/^RPT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP=`awk '/^RT_OUT .*/ {print($3);}' ${MAKEFILE}`
-		NEXT_HOP6=`awk '/^RT_OUT6 .*/ {print($3);}' ${MAKEFILE}`
-	fi
+	set_pf_forward_vars ${MAKEFILE}
 
+	VIO1_INET=${ECO_IN}
+	VIO1_INET6=${ECO_IN6}
+	VIO2_INET=${ECO_OUT}
+	VIO2_INET6=${ECO_OUT6}
+
+	#
+	# turn IP addresses to route prefixes
+	#
 	SRC_OUT=`echo ${SRC_OUT} |cut -d '.' -f 1 -f 2 -f 3`
 	SRC_OUT="${SRC_OUT}/24"
 
